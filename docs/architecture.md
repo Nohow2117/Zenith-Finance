@@ -1,0 +1,100 @@
+# Technical Architecture: Zenith Finance
+
+## 1. Stack Tecnologico Obbligatorio
+
+Per garantire la persistenza dei dati in ambiente Serverless (Vercel) e un'interfaccia ad alte prestazioni, il progetto DEVE utilizzare il seguente stack:
+
+* **Framework:** **Next.js 14+ (App Router)**. Utilizzo di Server Actions per la logica di backend e comunicazione DB.
+* **Styling:** **Tailwind CSS**. Tema custom "Zenith Dark" (Black/Deep Navy #0B0E11 con accenti Neon Green #00D395).
+* **Database (Persistence):** **Turso (LibSQL/SQLite)**. 
+    * *Nota Critica:* L'uso di un file SQLite locale è vietato poiché Vercel resetta il file system a ogni deploy. Turso è necessario per mantenere i saldi e le transazioni persistenti.
+* **ORM:** **Prisma** o **Drizzle**. Per la gestione dello schema e le migrazioni del database.
+* **AI Integration:** **OpenRouter API**. Gateway per l'invio dei testi degli estratti conto a modelli LLM (Gemini 1.5 Flash o Claude 3.5 Sonnet).
+* **Hosting:** **Vercel**.
+
+---
+
+## 2. Schema del Database (SQL/LibSQL)
+
+Il database deve riflettere la gerarchia dei sottoconti e la gestione delle carte.
+
+```sql
+-- Tabella Account (Sottoconti: Fineco, WeBank, Staking, etc.)
+CREATE TABLE accounts (
+    id TEXT PRIMARY KEY,                   -- UUID
+    name TEXT NOT NULL,                    -- Nome del conto
+    balance_eur REAL DEFAULT 0.0,          -- Saldo in Euro
+    card_last_four TEXT,                   -- Ultime 4 cifre (es. "1234")
+    card_expiry TEXT,                      -- Scadenza (es. "09/27")
+    card_network TEXT,                     -- "Visa" o "Mastercard"
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabella Transazioni (Storico)
+CREATE TABLE transactions (
+    id TEXT PRIMARY KEY,
+    account_id TEXT NOT NULL,
+    date DATETIME NOT NULL,
+    description TEXT NOT NULL,
+    amount_eur REAL NOT NULL,
+    amount_usdt REAL NOT NULL,             -- Calcolato su cambio fisso 1.08 o da AI
+    type TEXT CHECK(type IN ('income', 'expense', 'yield')),
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+);
+
+-- Tabella Prelievi ATM
+CREATE TABLE atm_withdrawals (
+    id TEXT PRIMARY KEY,
+    account_id TEXT NOT NULL,
+    amount REAL NOT NULL,                  -- Valori ammessi: 2000, 2500, 3000
+    pickup_date DATETIME NOT NULL,
+    status TEXT DEFAULT 'Pending Approval',
+    FOREIGN KEY (account_id) REFERENCES accounts(id)
+);
+3. Variabili d'Ambiente (.env)
+Il file .env è il cuore della configurazione. Il developer deve impostare queste chiavi su Vercel:
+
+Bash
+# Database (Turso)
+TURSO_DATABASE_URL="libsql://your-db-name.turso.io"
+TURSO_AUTH_TOKEN="your-auth-token"
+
+# AI (OpenRouter)
+OPENROUTER_API_KEY="your-openrouter-key"
+
+# Auth (Hardcoded)
+USER_PIN="1234"         # PIN per sbloccare i dati carta
+ADMIN_PASSWORD="admin_zenith_2024"
+4. Logica di Integrazione AI (OpenRouter)
+Il Pannello Admin include un endpoint /api/ai/parse-statement che opera come segue:
+
+Riceve il testo grezzo dell'estratto conto.
+
+Invia un prompt strutturato a OpenRouter chiedendo un output solo in formato JSON.
+
+Prompt di Sistema: "Sei un parser finanziario. Estrai transazioni (data, descrizione, importo_eur, tipo) da questo testo. Restituisci solo un array JSON. Non aggiungere commenti."
+
+L'output viene validato dal frontend e salvato nella tabella transactions.
+
+5. Struttura delle Cartelle (Folder Structure)
+Plaintext
+/zenith-finance
+├── /app
+│   ├── /api              # API Routes (AI, DB)
+│   ├── /admin            # Pannello di controllo (Protetta da password)
+│   ├── /dashboard        # Interfaccia utente (Protetta da PIN)
+│   └── layout.tsx        # Layout principale con font e stili globali
+├── /components
+│   ├── /ui               # Bottoni, input, card (stile Anchor)
+│   ├── /charts           # Grafici statici (Recharts o simili)
+│   └── /cards            # Componenti carte di debito animate
+├── /lib
+│   ├── prisma.ts         # Client Database
+│   └── openrouter.ts     # Client API AI
+├── /prisma
+│   └── schema.prisma     # Definizione modelli DB
+└── tailwind.config.js    # Configurazione colori Neon e Dark Mode
+6. Sicurezza Demo
+Auth: Middleware di Next.js che controlla un cookie di sessione. Se il cookie non è presente, reindirizza a /login.
+
+Dati Sensibili: I dati della carta (PAN completo e CVV) non devono esistere nel database. Solo le ultime 4 cifre e la scadenza sono memorizzate per scopi estetici.
