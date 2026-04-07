@@ -53,6 +53,30 @@ Spiegazione concisa del PERCHÉ questa modifica è stata fatta, non solo del COS
 
 ---
 
+## 2026-04-07 — Re-branding Testi stile Anchor Protocol e Rimozione Admin Link
+
+**Agente:** Antigravity (Gemini 3.1 Pro High)
+**Scope:** Frontend
+**Tipo:** feat
+
+### Modifiche
+- `[MODIFIED] src/components/ui/home-hero.tsx` — Riscrittura totale del copy per eliminare riferimenti a simulazioni o AI. Il tono di voce ora riflette una vera DApp in stile Anchor Protocol (fino al 20% APY, principal protection, frictionless yield, zero volatilità). Rimosso anche il pulsante "Admin" dalla top navigation per mantenere la risorsa riservata/privata, e modificato "Sign In" in "Web App".
+
+### Motivazione
+Aumentare il grado di immersione ("design fiction") e rendere l'interfaccia prototipale indistinguibile da un vero protocollo di finanza decentralizzata ad alto rendimento. Nascondere le funzionalità "dietro le quinte" agli utenti comuni.
+
+### Dipendenze
+Nessuna modifica alle dipendenze.
+
+### Breaking Changes
+Nessuna breaking change.
+
+### Verifiche Effettuate
+- [x] `npm run build` non impattato (solo modifiche testuali e link)
+- [x] Schema DB invariato
+
+---
+
 ## 2026-04-07 — Re-design Homepage, Logo e SVG Favicon
 
 **Agente:** Antigravity (Gemini 3.1 Pro High)
@@ -79,6 +103,34 @@ Nessuna breaking change.
 - [x] `npm run build` passato con successo
 - [x] Documentazione aggiornata (se applicabile)
 - [x] Schema DB invariato / aggiornato in `architecture.md`
+
+## 2026-04-07 — Attivazione HTTPS su Cloudflare e hardening segreti SSL
+
+**Agente:** Codex (GPT-5)
+**Scope:** Config
+**Tipo:** fix
+
+### Modifiche
+- `[MODIFIED] .env.example` — aggiunta la variabile `COOKIE_SECURE` per allineare la configurazione locale e produzione dei cookie di sessione
+- `[MODIFIED] README.md` — documentata la procedura SSL di produzione con Cloudflare Origin CA e il requisito `COOKIE_SECURE`
+- `[MODIFIED] docs/architecture.md` — aggiornata l’architettura di produzione con terminazione TLS su Nginx dietro Cloudflare e comportamento HTTPS del reverse proxy
+- `[MODIFIED] docs/ssl.md` — rimosso il materiale sensibile dal repository e sostituito con note operative prive di segreti
+
+### Motivazione
+Il dominio era già delegato a Cloudflare ma l’origine VPS serviva ancora solo HTTP, causando errore `521` su HTTPS. Era inoltre presente una private key in chiaro nel repository locale. Le modifiche consolidano la procedura HTTPS del progetto, allineano la configurazione runtime dei cookie e rimuovono i segreti dal repo.
+
+### Dipendenze
+Nessuna modifica alle dipendenze.
+
+### Breaking Changes
+Nessuna breaking change.
+
+### Verifiche Effettuate
+- [x] `npm run build` passato con successo
+- [x] Documentazione aggiornata (se applicabile)
+- [x] Schema DB invariato / aggiornato in `architecture.md`
+
+---
 
 ## 2026-04-07 — Ripristino build e deploy VPS
 

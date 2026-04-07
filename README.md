@@ -80,3 +80,10 @@ bash /home/artdefinance/deployments/artdefinance/bin/rollback-release.sh 2026040
 - Never store `.env` or `local.db` inside a release permanently.
 - `shared/.env` and `shared/local.db` are the source of truth for runtime secrets and persisted demo data.
 - If the server is memory-constrained, the Linux `libsql` native binding is already bundled in the artifact and does not need a remote `npm install`.
+
+## Production SSL
+
+- DNS for `artdefinance.com` and `www.artdefinance.com` should stay proxied through Cloudflare.
+- The VPS origin is configured with a Cloudflare Origin CA certificate in `/etc/ssl/artdefinance/`.
+- Nginx terminates TLS on port `443` and redirects `80` to `https`.
+- After HTTPS is active, `COOKIE_SECURE` must stay set to `"true"` in `shared/.env`.

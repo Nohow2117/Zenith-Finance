@@ -11,6 +11,7 @@ Per garantire persistenza dei dati e un'interfaccia ad alte prestazioni, il prog
 * **AI Integration:** **OpenRouter API**. Gateway per l'invio dei testi degli estratti conto a modelli LLM (Gemini 1.5 Flash o Claude 3.5 Sonnet).
 * **Hosting:** **VPS Linux** (185.165.169.119) — Next.js in modalità `standalone` con Node.js + reverse proxy Nginx/Caddy.
 * **Deploy Strategy:** release atomiche su VPS con symlink `current`, cartella `shared` per `.env` e `local.db`, rollback rapido senza deploy in-place.
+* **TLS Termination:** Cloudflare proxy + certificato Cloudflare Origin CA installato su Nginx in VPS per modalità SSL `Full (strict)`.
 
 ---
 
@@ -66,6 +67,7 @@ OPENROUTER_API_KEY="your-openrouter-key"
 USER_PIN="1234"         # PIN per sbloccare i dati carta
 ADMIN_PASSWORD="admin_artdefi_2024"
 SESSION_SECRET="replace-with-a-long-random-secret"
+COOKIE_SECURE="false"   # true in produzione quando il dominio serve HTTPS
 4. Logica di Integrazione AI (OpenRouter)
 Il Pannello Admin include un endpoint /api/ai/parse-statement che opera come segue:
 
@@ -112,3 +114,13 @@ Plaintext
 └── incoming/
 
 Il path `/home/artdefinance/app` punta via symlink a `current` per mantenere stabile il `cwd` di PM2 e del reverse proxy.
+
+8. HTTPS Produzione
+Plaintext
+Cloudflare (proxied DNS) -> Nginx su VPS (443 con Origin CA) -> Next.js standalone su 127.0.0.1:3000
+
+Il reverse proxy deve:
+- reindirizzare tutte le richieste `http` a `https`;
+- servire `artdefinance.com` e `www.artdefinance.com` su `443`;
+- inoltrare `X-Forwarded-Proto https` verso Next.js;
+- mantenere `COOKIE_SECURE="true"` in produzione per i cookie di sessione.
