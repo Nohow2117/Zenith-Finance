@@ -1,7 +1,7 @@
-# Product Requirements Document (PRD): Zenith Finance
+# Product Requirements Document (PRD): ArtDeFinance
 
 ## 1. Introduzione e Scopo
-Questo documento delinea i requisiti funzionali per la creazione di **Zenith Finance**, un prototipo web fittizio che simula un cruscotto ibrido di finanza tradizionale e decentralizzata. Il prodotto è diviso in due aree principali: la **Dashboard Utente** (Front-office) per la visualizzazione passiva e la prenotazione di operazioni fittizie, e il **Pannello Admin** (Back-office) per l'impostazione dei dati, la manipolazione dei saldi e l'importazione assistita dall'IA delle transazioni.
+Questo documento delinea i requisiti funzionali per la creazione di **ArtDeFinance**, un prototipo web fittizio che simula un cruscotto ibrido di finanza tradizionale e decentralizzata. Il prodotto è diviso in due aree principali: la **Dashboard Utente** (Front-office) per la visualizzazione passiva e la prenotazione di operazioni fittizie, e il **Pannello Admin** (Back-office) per l'impostazione dei dati, la manipolazione dei saldi e l'importazione assistita dall'IA delle transazioni.
 
 ## 2. Ruoli di Sistema
 * **User (Utente):** Accede alla dashboard in modalità "read-only" (o limitatamente interattiva) per visualizzare i propri fondi, le carte e richiedere finti prelievi.

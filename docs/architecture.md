@@ -1,16 +1,16 @@
-# Technical Architecture: Zenith Finance
+# Technical Architecture: ArtDeFinance
 
 ## 1. Stack Tecnologico Obbligatorio
 
-Per garantire la persistenza dei dati in ambiente Serverless (Vercel) e un'interfaccia ad alte prestazioni, il progetto DEVE utilizzare il seguente stack:
+Per garantire persistenza dei dati e un'interfaccia ad alte prestazioni, il progetto DEVE utilizzare il seguente stack:
 
 * **Framework:** **Next.js 14+ (App Router)**. Utilizzo di Server Actions per la logica di backend e comunicazione DB.
-* **Styling:** **Tailwind CSS**. Tema custom "Zenith Dark" (Black/Deep Navy #0B0E11 con accenti Neon Green #00D395).
-* **Database (Persistence):** **Turso (LibSQL/SQLite)**. 
-    * *Nota Critica:* L'uso di un file SQLite locale è vietato poiché Vercel resetta il file system a ogni deploy. Turso è necessario per mantenere i saldi e le transazioni persistenti.
-* **ORM:** **Prisma** o **Drizzle**. Per la gestione dello schema e le migrazioni del database.
+* **Styling:** **Tailwind CSS**. Tema custom "ArtDeFi Dark" (Black/Deep Navy #0B0E11 con accenti Neon Green #00D395).
+* **Database (Persistence):** **Turso (LibSQL/SQLite)**. Può operare sia in remoto (Turso cloud) sia con file SQLite locale su VPS.
+* **ORM:** **Drizzle**. Per la gestione dello schema e le migrazioni del database.
 * **AI Integration:** **OpenRouter API**. Gateway per l'invio dei testi degli estratti conto a modelli LLM (Gemini 1.5 Flash o Claude 3.5 Sonnet).
-* **Hosting:** **Vercel**.
+* **Hosting:** **VPS Linux** (185.165.169.119) — Next.js in modalità `standalone` con Node.js + reverse proxy Nginx/Caddy.
+* **Deploy Strategy:** release atomiche su VPS con symlink `current`, cartella `shared` per `.env` e `local.db`, rollback rapido senza deploy in-place.
 
 ---
 
@@ -64,7 +64,8 @@ OPENROUTER_API_KEY="your-openrouter-key"
 
 # Auth (Hardcoded)
 USER_PIN="1234"         # PIN per sbloccare i dati carta
-ADMIN_PASSWORD="admin_zenith_2024"
+ADMIN_PASSWORD="admin_artdefi_2024"
+SESSION_SECRET="replace-with-a-long-random-secret"
 4. Logica di Integrazione AI (OpenRouter)
 Il Pannello Admin include un endpoint /api/ai/parse-statement che opera come segue:
 
@@ -78,7 +79,7 @@ L'output viene validato dal frontend e salvato nella tabella transactions.
 
 5. Struttura delle Cartelle (Folder Structure)
 Plaintext
-/zenith-finance
+/artdefinance
 ├── /app
 │   ├── /api              # API Routes (AI, DB)
 │   ├── /admin            # Pannello di controllo (Protetta da password)
@@ -98,3 +99,16 @@ Plaintext
 Auth: Middleware di Next.js che controlla un cookie di sessione. Se il cookie non è presente, reindirizza a /login.
 
 Dati Sensibili: I dati della carta (PAN completo e CVV) non devono esistere nel database. Solo le ultime 4 cifre e la scadenza sono memorizzate per scopi estetici.
+
+7. Layout Deploy VPS
+Plaintext
+/home/artdefinance/deployments/artdefinance
+├── bin/
+├── current -> releases/<release-id>
+├── releases/
+├── shared/
+│   ├── .env
+│   └── local.db
+└── incoming/
+
+Il path `/home/artdefinance/app` punta via symlink a `current` per mantenere stabile il `cwd` di PM2 e del reverse proxy.

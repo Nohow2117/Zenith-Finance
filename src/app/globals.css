@@ -1,0 +1,65 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+@import "tailwindcss";
+
+@theme inline {
+  --color-bg-primary: #0B0E11;
+  --color-bg-secondary: #131722;
+  --color-bg-card: #1A1F2E;
+  --color-accent: #00D395;
+  --color-accent-hover: #00B880;
+  --color-accent-glow: rgba(0, 211, 149, 0.15);
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #8A919E;
+  --color-border: #252A37;
+  --color-danger: #EF4444;
+  --color-warning: #F59E0B;
+  --color-income: #00D395;
+  --color-expense: #EF4444;
+  --color-yield: #8B5CF6;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(0, 211, 149, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(0, 211, 149, 0.25); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@utility animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+@utility animate-glow {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+@utility animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #252A37 transparent;
+}
+
+body {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(0, 211, 149, 0.3);
+  color: #FFFFFF;
+}

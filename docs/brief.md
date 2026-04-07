@@ -1,7 +1,7 @@
-# Project Brief: Zenith Finance
+# Project Brief: ArtDeFinance
 
 ## 1. Panoramica del Progetto
-**Zenith Finance** è un prototipo ad alta fedeltà di una piattaforma finanziaria ibrida (DeFi / TradFi) progettata a scopo dimostrativo, educativo e di design fiction. L'obiettivo è simulare un ecosistema in cui l'utente può visualizzare e gestire un portafoglio aggregato di molteplici conti bancari e investimenti crypto, unendo l'interfaccia tipica dei protocolli decentralizzati (es. Anchor Protocol) con le funzionalità di banking tradizionale (carte di debito, prelievi ATM).
+**ArtDeFinance** è un prototipo ad alta fedeltà di una piattaforma finanziaria ibrida (DeFi / TradFi) progettata a scopo dimostrativo, educativo e di design fiction. L'obiettivo è simulare un ecosistema in cui l'utente può visualizzare e gestire un portafoglio aggregato di molteplici conti bancari e investimenti crypto, unendo l'interfaccia tipica dei protocolli decentralizzati (es. Anchor Protocol) con le funzionalità di banking tradizionale (carte di debito, prelievi ATM).
 
 Il progetto è suddiviso in due interfacce protette da password (hardcoded per facilitare la demo):
 1. **Dashboard Utente**: Un'interfaccia "read-only" ad alto impatto visivo dove l'utente visualizza saldi, carte, grafici e interagisce con finte funzionalità di prelievo.
