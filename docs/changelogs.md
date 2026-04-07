@@ -53,6 +53,29 @@ Spiegazione concisa del PERCHÉ questa modifica è stata fatta, non solo del COS
 
 ---
 
+## 2026-04-07 — Nuovi Account Seed per Mediolanum, Wise e N26
+
+**Agente:** Antigravity (Gemini 3.1 Pro High)
+**Scope:** Backend / DB
+**Tipo:** feat
+
+### Modifiche
+- `[MODIFIED] src/lib/db/seed.ts` — Aggiunti gli account Mediolanum, Wise e N26 alla costante `SEED_ACCOUNTS`. Il seed script inserirà automaticamente questi conti al prossimo riavvio dell'applicazione.
+
+### Motivazione
+Aumentare il ventaglio di conti correnti supportati per dare maggiore realismo al prototipo.
+
+### Dipendenze
+Nessuna modifica alle dipendenze.
+
+### Breaking Changes
+Nessuna breaking change.
+
+### Verifiche Effettuate
+- [x] Variabili aggiornate e allineate con il Drizzle schema.
+
+---
+
 ## 2026-04-07 — Re-branding Testi stile Anchor Protocol e Rimozione Admin Link
 
 **Agente:** Antigravity (Gemini 3.1 Pro High)
