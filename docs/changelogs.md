@@ -53,6 +53,33 @@ Spiegazione concisa del PERCHÉ questa modifica è stata fatta, non solo del COS
 
 ---
 
+## 2026-04-07 — Aggiornamento Parser AI e UI Gestione Transazioni
+
+**Agente:** Antigravity (Gemini 3.1 Pro High)
+**Scope:** Backend / Frontend (Admin)
+**Tipo:** feat
+
+### Modifiche
+- `[MODIFIED] src/app/api/ai/parse-statement/route.ts` — Aggiornato il modello AI a `google/gemini-3.1-flash-lite-preview` e modificato il prompt di sistema in modo che estragga esclusivamente prelievi ATM e pagamenti con carta (tipo "expense").
+- `[MODIFIED] src/app/_actions/data.ts` — Aggiunta la funzione Server Action `deleteTransactions` che accetta un array di ID permettendo cancellazioni singole e multiple via query `inArray()`.
+- `[MODIFIED] src/app/admin/transactions/admin-transactions-client.tsx` — Implementata tabella di visualizzazione transazioni dotata di checkbox per Bulk actions e pulsanti individuali di Delete.
+- `[MODIFIED] src/app/admin/transactions/page.tsx` — Passata la lista di transazioni come prop al Client Component chiamando l'apposita fetch function.
+
+### Motivazione
+Affinare il riconoscimento AI specializzandolo sui dati primari (spese) e dare agli admin la facoltà di cancellare inserimenti errati lato backend tramite UI rapida ed intuitiva senza dover interagire direttamente col DB.
+
+### Dipendenze
+Nessuna nuova dipendenza.
+
+### Breaking Changes
+Nessuna breaking change.
+
+### Verifiche Effettuate
+- [x] Corretta importazione di `inArray` in `data.ts`.
+- [x] Lint ok sulla validazione della proprietà "danger" nel Button Component.
+
+---
+
 ## 2026-04-07 — Nuovi Account Seed per Mediolanum, Wise e N26
 
 **Agente:** Antigravity (Gemini 3.1 Pro High)

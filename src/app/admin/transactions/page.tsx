@@ -1,9 +1,10 @@
-import { getAccounts } from "@/app/_actions/data";
+import { getAccounts, getTransactions } from "@/app/_actions/data";
 import { AdminTransactionsClient } from "./admin-transactions-client";
 
 export const metadata = { title: "Admin — Transactions" };
 
 export default async function AdminTransactionsPage() {
   const accounts = await getAccounts();
-  return <AdminTransactionsClient accounts={accounts} />;
+  const transactions = await getTransactions();
+  return <AdminTransactionsClient accounts={accounts} transactions={transactions} />;
 }

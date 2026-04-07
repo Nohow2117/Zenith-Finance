@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { initializeDatabase } from "@/lib/db/init";
 import { accounts, transactions, atmWithdrawals } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, inArray } from "drizzle-orm";
 import { v4 as uuid } from "uuid";
 import { z } from "zod";
 import { EUR_USDT_RATE } from "@/lib/constants";
@@ -221,5 +221,21 @@ export async function bulkAddTransactions(
     return { success: true };
   } catch (e) {
     return { success: false, error: "Failed to import transactions" };
+  }
+}
+
+export async function deleteTransactions(txIds: string[]): Promise<ActionResult> {
+  if (!Array.isArray(txIds) || txIds.length === 0) {
+    return { success: false, error: "No transactions provided" };
+  }
+  try {
+    await initializeDatabase();
+    await requireAdminSession();
+    await db.delete(transactions).where(inArray(transactions.id, txIds));
+    revalidatePath("/dashboard");
+    revalidatePath("/admin/transactions");
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: "Failed to delete transactions" };
   }
 }
