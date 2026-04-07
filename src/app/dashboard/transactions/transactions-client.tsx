@@ -53,7 +53,6 @@ export function TransactionsClient({ accounts, transactions }: TransactionsClien
               <tr className="border-b border-border/50">
                 <th className="text-left text-xs font-medium text-text-secondary px-6 py-4 uppercase tracking-wider">Date</th>
                 <th className="text-left text-xs font-medium text-text-secondary px-6 py-4 uppercase tracking-wider">Description</th>
-                <th className="text-left text-xs font-medium text-text-secondary px-6 py-4 uppercase tracking-wider">Account</th>
                 <th className="text-left text-xs font-medium text-text-secondary px-6 py-4 uppercase tracking-wider">Type</th>
                 <th className="text-right text-xs font-medium text-text-secondary px-6 py-4 uppercase tracking-wider">EUR</th>
                 <th className="text-right text-xs font-medium text-text-secondary px-6 py-4 uppercase tracking-wider">USDT</th>
@@ -70,7 +69,6 @@ export function TransactionsClient({ accounts, transactions }: TransactionsClien
                 >
                   <td className="px-6 py-4 text-sm">{tx.date}</td>
                   <td className="px-6 py-4 text-sm font-medium">{tx.description}</td>
-                  <td className="px-6 py-4 text-sm text-text-secondary">{accountMap.get(tx.accountId) ?? "—"}</td>
                   <td className="px-6 py-4">
                     <span
                       className={`text-xs px-2.5 py-1 rounded-full font-medium ${

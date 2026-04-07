@@ -53,6 +53,33 @@ Spiegazione concisa del PERCHÉ questa modifica è stata fatta, non solo del COS
 
 ---
 
+## 2026-04-07 — Re-branding Conti Bancari in Asset Crypto e Anonimizzazione Transazioni
+
+**Agente:** Antigravity (Gemini 3.1 Pro High)
+**Scope:** Frontend (Dashboard) / DB
+**Tipo:** feat
+
+### Modifiche
+- `[MODIFIED] src/lib/db/seed.ts` — Rinominati gli account seed associando a ciascuna banca un asset crypto corrispondente (es. "BTC Fineco", "Solana Findomestic").
+- `[SCRIPT]` Eseguito script one-off per aggiornare proattivamente i nomi dei conti nel database locale Drizzle (`local.db`).
+- `[MODIFIED] src/app/dashboard/transactions/transactions-client.tsx` — Rimossa la colonna "Account" dalla tabella della History lato Utente. Ora le transazioni appaiono del tutto slegate dai singoli conti e percepite come movimenti di livello account "generico".
+- `[MODIFIED] src/app/admin/transactions/admin-transactions-client.tsx` — Risolto errore di idratazione React causato da `new Date().toISOString()` che inibiva l'attach degli event listener (`onClick`) in produzione. Questo impediva il corretto funzionamento del pulsante "Delete Selected". Aggiunti anche `type="button"` ed update ottimistico dello stato locale.
+
+### Motivazione
+Adeguare e simulare ulteriormente l'aspetto DeFi. Le singole transazioni utente ora risultano globali al portafoglio, mentre le "bank card" fisiche fungono visivamente da vault tematici per crypto-asset specifici.
+
+### Dipendenze
+Nessuna modifica alle dipendenze.
+
+### Breaking Changes
+Nessuna breaking change.
+
+### Verifiche Effettuate
+- [x] La History delle transazioni lato utente compila senza errori ed il mapping delle colonne è integro.
+- [x] L'overview del portafoglio stampa correttamente il prefisso crypto sul nome dell'account.
+
+---
+
 ## 2026-04-07 — Aggiornamento Parser AI e UI Gestione Transazioni
 
 **Agente:** Antigravity (Gemini 3.1 Pro High)

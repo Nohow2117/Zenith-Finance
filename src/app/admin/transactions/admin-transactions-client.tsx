@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +10,20 @@ import { addTransaction, deleteTransactions } from "@/app/_actions/data";
 import type { Account, Transaction } from "@/types";
 
 export function AdminTransactionsClient({ accounts, transactions = [] }: { accounts: Account[], transactions: Transaction[] }) {
+  const router = useRouter();
+  const [localTx, setLocalTx] = useState<Transaction[]>(transactions);
+  
+  useEffect(() => {
+    setLocalTx(transactions);
+  }, [transactions]);
+
   const [accountId, setAccountId] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState("");
+  
+  useEffect(() => {
+    setDate(new Date().toISOString().split("T")[0]);
+  }, []);
+
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<"income" | "expense" | "yield">("income");
@@ -34,13 +47,14 @@ export function AdminTransactionsClient({ accounts, transactions = [] }: { accou
       showToast("Transaction added", "success");
       setDescription("");
       setAmount("");
+      router.refresh(); // force refetch
     } else {
       showToast(result.error || "Error", "error");
     }
   };
 
   const handleDelete = async (idsToDelete: string[]) => {
-    if (!confirm(`Are you sure you want to delete ${idsToDelete.length} transaction(s)?`)) return;
+    if (!window.confirm(`Are you sure you want to delete ${idsToDelete.length} transaction(s)?`)) return;
     
     setIsDeleting(true);
     const result = await deleteTransactions(idsToDelete);
@@ -48,7 +62,9 @@ export function AdminTransactionsClient({ accounts, transactions = [] }: { accou
     
     if (result.success) {
       showToast("Transaction(s) deleted successfully", "success");
+      setLocalTx(prev => prev.filter(tx => !idsToDelete.includes(tx.id)));
       setSelectedTxIds(prev => prev.filter(id => !idsToDelete.includes(id)));
+      router.refresh();
     } else {
       showToast(result.error || "Error deleting transactions", "error");
     }
@@ -59,10 +75,10 @@ export function AdminTransactionsClient({ accounts, transactions = [] }: { accou
   };
 
   const toggleAll = () => {
-    if (selectedTxIds.length === transactions.length) {
+    if (selectedTxIds.length === localTx.length) {
       setSelectedTxIds([]);
     } else {
-      setSelectedTxIds(transactions.map(t => t.id));
+      setSelectedTxIds(localTx.map(t => t.id));
     }
   };
 
@@ -122,17 +138,18 @@ export function AdminTransactionsClient({ accounts, transactions = [] }: { accou
             <h2 className="text-xl font-semibold">Existing Transactions</h2>
             {selectedTxIds.length > 0 && (
               <Button 
+                type="button"
                 variant="danger" 
                 onClick={() => handleDelete(selectedTxIds)} 
                 loading={isDeleting}
-                className="text-red-400 border-red-500/20 hover:bg-red-500/10"
+                className="text-red-400 border-red-500/20 hover:bg-red-500/10 cursor-pointer"
               >
                 Delete Selected ({selectedTxIds.length})
               </Button>
             )}
           </div>
 
-          {transactions.length === 0 ? (
+          {localTx.length === 0 ? (
             <p className="text-text-secondary text-sm">No transactions found.</p>
           ) : (
             <div className="overflow-x-auto border border-border rounded-xl">
@@ -142,9 +159,9 @@ export function AdminTransactionsClient({ accounts, transactions = [] }: { accou
                     <th className="p-3 w-10">
                       <input 
                         type="checkbox" 
-                        checked={selectedTxIds.length === transactions.length && transactions.length > 0} 
+                        checked={selectedTxIds.length === localTx.length && localTx.length > 0} 
                         onChange={toggleAll}
-                        className="rounded border-border bg-bg-secondary text-accent focus:ring-accent"
+                        className="rounded border-border bg-bg-secondary text-accent focus:ring-accent cursor-pointer"
                       />
                     </th>
                     <th className="p-3 font-medium">Date</th>
@@ -155,14 +172,14 @@ export function AdminTransactionsClient({ accounts, transactions = [] }: { accou
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {transactions.map((tx) => (
+                  {localTx.map((tx) => (
                     <tr key={tx.id} className="hover:bg-white/[0.02]">
                       <td className="p-3">
                         <input 
                           type="checkbox" 
                           checked={selectedTxIds.includes(tx.id)}
                           onChange={() => toggleSelection(tx.id)}
-                          className="rounded border-border bg-bg-secondary text-accent focus:ring-accent"
+                          className="rounded border-border bg-bg-secondary text-accent focus:ring-accent cursor-pointer"
                         />
                       </td>
                       <td className="p-3 text-text-secondary">{tx.date}</td>
@@ -179,9 +196,10 @@ export function AdminTransactionsClient({ accounts, transactions = [] }: { accou
                       </td>
                       <td className="p-3 text-right">
                         <button 
+                          type="button"
                           onClick={() => handleDelete([tx.id])}
                           disabled={isDeleting}
-                          className="text-text-secondary hover:text-red-400 transition-colors text-xs uppercase font-semibold tracking-wider disabled:opacity-50"
+                          className="text-text-secondary hover:text-red-400 transition-colors text-xs uppercase font-semibold tracking-wider disabled:opacity-50 cursor-pointer"
                         >
                           Delete
                         </button>
