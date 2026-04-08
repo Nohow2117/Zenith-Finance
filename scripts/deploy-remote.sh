@@ -36,6 +36,13 @@ if [ ! -f "$SHARED_DIR/local.db" ]; then
   : > "$SHARED_DIR/local.db"
 fi
 
+if [ -f "$SHARED_DIR/local.db" ]; then
+  BACKUP_DIR="$SHARED_DIR/backups"
+  mkdir -p "$BACKUP_DIR"
+  cp "$SHARED_DIR/local.db" "$BACKUP_DIR/local_pre-deploy_${RELEASE_ID}.db"
+  echo "Pre-deploy backup created"
+fi
+
 rm -rf "$RELEASE_DIR"
 mkdir -p "$RELEASE_DIR"
 tar -xzf "$ARTIFACT_PATH" -C "$RELEASE_DIR"

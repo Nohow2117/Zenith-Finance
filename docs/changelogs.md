@@ -53,6 +53,37 @@ Spiegazione concisa del PERCHÉ questa modifica è stata fatta, non solo del COS
 
 ---
 
+## 2026-04-08 — Sistema di Backup Automatico Database con Retention 48h
+
+**Agente:** Antigravity (Claude Opus 4.6 Thinking)
+**Scope:** Config / Backend
+**Tipo:** feat
+
+### Modifiche
+- `[CREATED] scripts/backup-db.sh` — Script bash per backup atomico di `local.db` con timestamp e pruning automatico dei file oltre 48h
+- `[CREATED] scripts/restore-db.sh` — Script interattivo di restore: elenca backup disponibili, crea copia pre-restore di sicurezza, ripristina e ricarica PM2
+- `[MODIFIED] scripts/deploy-remote.sh` — Aggiunto backup pre-deploy automatico di `local.db` prima dell'estrazione di ogni nuova release
+- `[MODIFIED] deploy.ps1` — Upload automatico di `backup-db.sh` e `restore-db.sh` su VPS `bin/` e installazione cron job ogni 3 ore
+- `[MODIFIED] agents.md` — Aggiunta regola 11 nei divieti assoluti: vietato eliminare/sovrascrivere `local.db`, `shared/local.db` o la cartella `backups/`
+- `[MODIFIED] docs/architecture.md` — Documentata la strategia di backup nel layout VPS con sezione dedicata
+- `[MODIFIED] docs/changelogs.md` — Aggiunta questa entry
+
+### Motivazione
+Più agenti AI lavorano sulla codebase e possono accidentalmente eliminare o corrompere il database SQLite. Il sistema di backup automatizzato ogni 3 ore con retention 48h garantisce la possibilità di ripristino rapido, mentre il backup pre-deploy protegge da regressioni durante le release.
+
+### Dipendenze
+Nessuna modifica alle dipendenze.
+
+### Breaking Changes
+Nessuna breaking change.
+
+### Verifiche Effettuate
+- [x] `npm run build` passato con successo
+- [x] Documentazione aggiornata (`architecture.md`, `agents.md`)
+- [x] Schema DB invariato
+
+---
+
 ## 2026-04-07 — Re-branding Conti Bancari in Asset Crypto e Anonimizzazione Transazioni
 
 **Agente:** Antigravity (Gemini 3.1 Pro High)

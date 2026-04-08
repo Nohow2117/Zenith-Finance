@@ -91,6 +91,12 @@ try {
   ssh $Vps "mkdir -p $RemoteIncomingDir $RemoteBinDir"
   scp $ArtifactPath "${Vps}:${RemoteArtifactPath}"
   (Get-UnixText "scripts/rollback-remote.sh") | ssh $Vps "cat > $RemoteRollbackScriptPath && sed -i 's/\r$//' $RemoteRollbackScriptPath && chmod +x $RemoteRollbackScriptPath"
+  $RemoteBackupScriptPath = "$RemoteBinDir/backup-db.sh"
+  $RemoteRestoreScriptPath = "$RemoteBinDir/restore-db.sh"
+  (Get-UnixText "scripts/backup-db.sh") | ssh $Vps "cat > $RemoteBackupScriptPath && sed -i 's/\r$//' $RemoteBackupScriptPath && chmod +x $RemoteBackupScriptPath"
+  (Get-UnixText "scripts/restore-db.sh") | ssh $Vps "cat > $RemoteRestoreScriptPath && sed -i 's/\r$//' $RemoteRestoreScriptPath && chmod +x $RemoteRestoreScriptPath"
+  ssh $Vps "(crontab -l 2>/dev/null | grep -v 'backup-db.sh'; echo '0 */3 * * * $RemoteBackupScriptPath >> /home/artdefinance/deployments/artdefinance/shared/backups/cron.log 2>&1') | crontab -"
+  Write-Host "Backup scripts deployed and cron job installed (every 3 hours)" -ForegroundColor Gray
 
   Write-Host "`n=== RELEASE ===" -ForegroundColor Cyan
   (Get-UnixText "scripts/deploy-remote.sh") | ssh $Vps "cat > $RemoteScriptPath && sed -i 's/\r$//' $RemoteScriptPath && chmod +x $RemoteScriptPath && bash $RemoteScriptPath '$ReleaseId' '$RemoteArtifactPath' '$LinuxBindingPackage'"

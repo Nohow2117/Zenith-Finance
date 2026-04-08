@@ -106,14 +106,21 @@ Dati Sensibili: I dati della carta (PAN completo e CVV) non devono esistere nel 
 Plaintext
 /home/artdefinance/deployments/artdefinance
 ├── bin/
+│   ├── backup-db.sh
+│   ├── restore-db.sh
+│   └── rollback-release.sh
 ├── current -> releases/<release-id>
 ├── releases/
 ├── shared/
 │   ├── .env
-│   └── local.db
+│   ├── local.db
+│   └── backups/       ← backup automatici ogni 3h, retention 48h
 └── incoming/
 
 Il path `/home/artdefinance/app` punta via symlink a `current` per mantenere stabile il `cwd` di PM2 e del reverse proxy.
+
+### Backup Database
+Un cron job esegue `bin/backup-db.sh` ogni 3 ore. I backup risiedono in `shared/backups/` con naming `local_YYYY-MM-DD_HH-MM.db`. I file più vecchi di 48 ore vengono eliminati automaticamente. Il deploy crea un backup aggiuntivo `local_pre-deploy_<release-id>.db` prima di ogni release. Per ripristinare: `bin/restore-db.sh [timestamp-parziale]`.
 
 8. HTTPS Produzione
 Plaintext

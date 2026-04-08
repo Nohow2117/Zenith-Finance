@@ -153,6 +153,7 @@ Ogni agente, per QUALUNQUE modifica (anche di una sola riga), DEVE seguire quest
 8. ❌ Non creare file `.js` o `.jsx`. Solo `.ts` e `.tsx`.
 9. ❌ Non pushare codice che non compila (`npm run build` fallisce).
 10. ❌ Non ignorare le regole di questo documento "perché è più veloce".
+11. ❌ Non eliminare, sovrascrivere o troncare `local.db`, `shared/local.db` o la cartella `backups/`. Per resettare i dati, usare le migrazioni Drizzle o il seed script. Per ripristinare un backup, usare `scripts/restore-db.sh`.
 
 ---
 
