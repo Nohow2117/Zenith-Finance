@@ -2,6 +2,7 @@ export const APP_NAME = "ArtDeFinance";
 export const EUR_USDT_RATE = 1.08;
 export const ATM_AMOUNTS = [2000, 2500, 3000] as const;
 export const PIN_LENGTH = 4;
+export const MAX_VISIBLE_TRANSACTIONS = 30;
 export const SESSION_COOKIE_NAME = "artdefi_session";
 export const ADMIN_SESSION_COOKIE_NAME = "artdefi_admin_session";
 export const OPENROUTER_TIMEOUT_MS = 30000;

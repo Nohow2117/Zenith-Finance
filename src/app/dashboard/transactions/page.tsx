@@ -1,14 +1,16 @@
-import { getAccounts, getTransactions } from "@/app/_actions/data";
+import { getAccounts, getVisibleTransactions } from "@/app/_actions/data";
+import { MAX_VISIBLE_TRANSACTIONS } from "@/lib/constants";
 import { TransactionsClient } from "./transactions-client";
 
 export const metadata = { title: "Transactions" };
 
 export default async function TransactionsPage() {
-  const [allAccounts, allTransactions] = await Promise.all([getAccounts(), getTransactions()]);
+  const [allAccounts, visibleTransactions] = await Promise.all([
+    getAccounts(),
+    getVisibleTransactions(MAX_VISIBLE_TRANSACTIONS),
+  ]);
 
   const activeAccounts = allAccounts.filter(a => a.isActive);
-  const activeAccountIds = new Set(activeAccounts.map(a => a.id));
-  const activeTransactions = allTransactions.filter(t => activeAccountIds.has(t.accountId));
 
-  return <TransactionsClient accounts={activeAccounts} transactions={activeTransactions} />;
+  return <TransactionsClient accounts={activeAccounts} transactions={visibleTransactions} />;
 }

@@ -53,6 +53,37 @@ Spiegazione concisa del PERCHÉ questa modifica è stata fatta, non solo del COS
 
 ---
 
+## 2026-04-08 — Riallineamento Account Legacy e Limite History a 30 Movimenti
+
+**Agente:** Codex (GPT-5)
+**Scope:** Full-Stack
+**Tipo:** fix
+
+### Modifiche
+- `[MODIFIED] src/lib/constants.ts` — aggiunta la costante `MAX_VISIBLE_TRANSACTIONS` per centralizzare il limite user-facing della history
+- `[CREATED] src/lib/db/reconcile-accounts.ts` — introdotta una riconciliazione idempotente che migra transazioni e prelievi dagli account legacy ai corrispettivi rebrandizzati e rimuove i duplicati legacy
+- `[MODIFIED] src/lib/db/init.ts` — eseguita la riconciliazione degli account legacy durante il bootstrap del database prima del seed
+- `[MODIFIED] src/app/_actions/data.ts` — aggiunta la fetch `getVisibleTransactions()` che restituisce solo transazioni di account attivi e limitate alle ultime 30 righe
+- `[MODIFIED] src/app/dashboard/page.tsx` — aggiornato il caricamento della overview per usare solo le transazioni visibili lato utente
+- `[MODIFIED] src/app/dashboard/transactions/page.tsx` — aggiornata la pagina history per mostrare solo le ultime 30 transazioni valide lato utente
+- `[MODIFIED] docs/changelogs.md` — aggiunta questa entry
+
+### Motivazione
+Il database live conteneva transazioni collegate a vecchi account legacy (`Fineco`, `WeBank`, ecc.) ormai sostituiti da account rebrandizzati attivi (`BTC Fineco`, `USDC WeBank`, ecc.). Le pagine dashboard filtravano le transazioni per account attivi e finivano quindi per scartare tutte le righe esistenti. La riconciliazione riallinea in modo permanente gli ID referenziati nel DB e la nuova fetch limita la history utente alle ultime 30 operazioni richieste.
+
+### Dipendenze
+Nessuna modifica alle dipendenze.
+
+### Breaking Changes
+Nessuna breaking change.
+
+### Verifiche Effettuate
+- [x] `npm run build` passato con successo
+- [ ] Documentazione aggiornata (se applicabile)
+- [x] Schema DB invariato / aggiornato in `architecture.md`
+
+---
+
 ## 2026-04-08 — Sistema di Backup Automatico Database con Retention 48h
 
 **Agente:** Antigravity (Claude Opus 4.6 Thinking)

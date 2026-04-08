@@ -6,7 +6,7 @@ import { accounts, transactions, atmWithdrawals } from "@/lib/db/schema";
 import { eq, desc, inArray } from "drizzle-orm";
 import { v4 as uuid } from "uuid";
 import { z } from "zod";
-import { EUR_USDT_RATE } from "@/lib/constants";
+import { EUR_USDT_RATE, MAX_VISIBLE_TRANSACTIONS } from "@/lib/constants";
 import type { ActionResult, Account, Transaction, AtmWithdrawal } from "@/types";
 import { revalidatePath } from "next/cache";
 import { requireAdminSession, requireAppSession, requireUserSession } from "@/lib/auth/guards";
@@ -32,6 +32,36 @@ export async function getTransactions(): Promise<Transaction[]> {
   await initializeDatabase();
   await requireAppSession();
   const rows = await db.select().from(transactions).orderBy(desc(transactions.date));
+  return rows.map((r) => ({
+    id: r.id,
+    accountId: r.accountId,
+    date: r.date,
+    description: r.description,
+    amountEur: r.amountEur,
+    amountUsdt: r.amountUsdt,
+    type: r.type,
+  }));
+}
+
+export async function getVisibleTransactions(limit = MAX_VISIBLE_TRANSACTIONS): Promise<Transaction[]> {
+  await initializeDatabase();
+  await requireAppSession();
+  const rows = await db
+    .select({
+      id: transactions.id,
+      accountId: transactions.accountId,
+      date: transactions.date,
+      description: transactions.description,
+      amountEur: transactions.amountEur,
+      amountUsdt: transactions.amountUsdt,
+      type: transactions.type,
+    })
+    .from(transactions)
+    .innerJoin(accounts, eq(transactions.accountId, accounts.id))
+    .where(eq(accounts.isActive, true))
+    .orderBy(desc(transactions.date))
+    .limit(limit);
+
   return rows.map((r) => ({
     id: r.id,
     accountId: r.accountId,
