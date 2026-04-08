@@ -53,6 +53,33 @@ Spiegazione concisa del PERCHÉ questa modifica è stata fatta, non solo del COS
 
 ---
 
+## 2026-04-08 — Correzione Reveal Carte Dopo PIN
+
+**Agente:** Codex (GPT-5)
+**Scope:** Frontend
+**Tipo:** fix
+
+### Modifiche
+- `[MODIFIED] src/components/cards/debit-card.tsx` — corretto il reveal delle carte: prima del PIN il numero resta completamente mascherato, dopo il PIN vengono mostrati in modo evidente solo gli ultimi 4 numeri consentiti e lo stato visuale cambia chiaramente
+- `[MODIFIED] src/app/dashboard/cards/cards-client.tsx` — aggiornato il copy per allinearlo ai dati carta effettivamente esponibili nel prodotto
+- `[MODIFIED] docs/changelogs.md` — aggiunta questa entry
+
+### Motivazione
+Dopo l’hardening sicurezza il componente carta continuava a mostrare una stringa quasi identica sia prima sia dopo il PIN, dando l’impressione che il reveal non funzionasse. La correzione rende il comportamento chiaro senza reintrodurre PAN completo o CVV, che restano vietati dalle regole del progetto.
+
+### Dipendenze
+Nessuna modifica alle dipendenze.
+
+### Breaking Changes
+Nessuna breaking change.
+
+### Verifiche Effettuate
+- [x] `npm run build` passato con successo
+- [ ] Documentazione aggiornata (se applicabile)
+- [x] Schema DB invariato / aggiornato in `architecture.md`
+
+---
+
 ## 2026-04-08 — Hardening Auth Multi-Step, Lockout Persistente e Sanitizzazione Carte
 
 **Agente:** Codex (GPT-5)

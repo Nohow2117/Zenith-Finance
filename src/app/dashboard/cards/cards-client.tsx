@@ -20,7 +20,7 @@ export function CardsClient({ accounts }: { accounts: Account[] }) {
       <div>
         <h1 className="text-2xl font-bold">Your Cards</h1>
         <p className="text-sm text-text-secondary mt-1">
-          Click &quot;Show Data&quot; and enter your PIN to reveal card details
+          Click &quot;Show Data&quot; and enter your PIN to reveal the protected card details available in the app
         </p>
       </div>
 

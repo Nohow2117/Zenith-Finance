@@ -47,9 +47,7 @@ export function DebitCard({ account }: DebitCardProps) {
     ? `•••• •••• •••• ${account.cardLastFour}`
     : "•••• •••• •••• ••••";
 
-  const maskedNumber = account.cardLastFour
-    ? `•••• •••• •••• ${account.cardLastFour}`
-    : "•••• •••• •••• ••••";
+  const maskedNumber = "•••• •••• •••• ••••";
 
   return (
     <>
@@ -75,10 +73,33 @@ export function DebitCard({ account }: DebitCardProps) {
             )}
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-2">
             <p className="text-lg font-mono tracking-[0.2em] text-white/90">
               {isRevealed ? revealedNumber : maskedNumber}
             </p>
+            <AnimatePresence mode="wait">
+              {isRevealed ? (
+                <motion.p
+                  key="revealed-state"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  className="text-[11px] uppercase tracking-[0.28em] text-accent/80"
+                >
+                  Verified • Last four revealed
+                </motion.p>
+              ) : (
+                <motion.p
+                  key="masked-state"
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  className="text-[11px] uppercase tracking-[0.28em] text-white/35"
+                >
+                  Protected • PIN required
+                </motion.p>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="flex justify-between items-end">
