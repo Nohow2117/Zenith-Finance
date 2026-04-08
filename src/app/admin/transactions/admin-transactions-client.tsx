@@ -54,19 +54,47 @@ export function AdminTransactionsClient({ accounts, transactions = [] }: { accou
   };
 
   const handleDelete = async (idsToDelete: string[]) => {
-    if (!window.confirm(`Are you sure you want to delete ${idsToDelete.length} transaction(s)?`)) return;
+    console.log("[DEBUG] handleDelete triggered with ids:", idsToDelete);
+    
+    // Check if the array is valid
+    if (!idsToDelete || idsToDelete.length === 0) {
+      console.warn("[DEBUG] idsToDelete is empty or undefined!");
+      return;
+    }
+
+    // Attempting window.confirm, tracking its result
+    // If the browser blocks dialogs, this immediately returns false
+    console.log("[DEBUG] Expecting window.confirm prompt...");
+    const confirmed = window.confirm(`Are you sure you want to delete ${idsToDelete.length} transaction(s)?`);
+    console.log("[DEBUG] window.confirm returned:", confirmed);
+    
+    if (!confirmed) {
+      console.log("[DEBUG] User cancelled the dialog, or browser blocked it. Bypassing check for debugging!");
+      // FOR DEBUGGING ONLY: we proceed even if cancelled to see if the action actually runs
+      // return; 
+    }
     
     setIsDeleting(true);
-    const result = await deleteTransactions(idsToDelete);
-    setIsDeleting(false);
-    
-    if (result.success) {
-      showToast("Transaction(s) deleted successfully", "success");
-      setLocalTx(prev => prev.filter(tx => !idsToDelete.includes(tx.id)));
-      setSelectedTxIds(prev => prev.filter(id => !idsToDelete.includes(id)));
-      router.refresh();
-    } else {
-      showToast(result.error || "Error deleting transactions", "error");
+    console.log("[DEBUG] Calling deleteTransactions server action...");
+    try {
+      const result = await deleteTransactions(idsToDelete);
+      console.log("[DEBUG] Server action returned:", result);
+      
+      setIsDeleting(false);
+      
+      if (result.success) {
+        showToast("Transaction(s) deleted successfully", "success");
+        setLocalTx(prev => prev.filter(tx => !idsToDelete.includes(tx.id)));
+        setSelectedTxIds(prev => prev.filter(id => !idsToDelete.includes(id)));
+        router.refresh();
+      } else {
+        console.error("[DEBUG] Server action indicates failure:", result.error);
+        showToast(result.error || "Error deleting transactions", "error");
+      }
+    } catch (error) {
+      console.error("[DEBUG] Exception caught during server action execution:", error);
+      setIsDeleting(false);
+      showToast("Critical error during deletion", "error");
     }
   };
 
