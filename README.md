@@ -33,11 +33,15 @@ This project now uses a release-based VPS deploy flow.
 ```text
 /home/artdefinance/deployments/artdefinance
 ├── bin/
+│   ├── backup-db.sh
+│   ├── restore-db.sh
+│   └── rollback-release.sh
 ├── current -> /home/artdefinance/deployments/artdefinance/releases/<release-id>
 ├── releases/
 ├── shared/
 │   ├── .env
-│   └── local.db
+│   ├── local.db
+│   └── backups/
 └── incoming/
 ```
 
@@ -74,10 +78,27 @@ To rollback to a specific release id:
 bash /home/artdefinance/deployments/artdefinance/bin/rollback-release.sh 20260407-153000
 ```
 
+### Database Backup
+
+A cron job runs `bin/backup-db.sh` every 3 hours. Backups are stored in `shared/backups/` with naming `local_YYYY-MM-DD_HH-MM.db`. Files older than 48 hours are automatically pruned. Each deploy also creates a `local_pre-deploy_<release-id>.db` safety backup.
+
+To restore interactively:
+
+```bash
+bash /home/artdefinance/deployments/artdefinance/bin/restore-db.sh
+```
+
+To restore a specific backup by partial timestamp match:
+
+```bash
+bash /home/artdefinance/deployments/artdefinance/bin/restore-db.sh 2026-04-08
+```
+
 ### Operational Notes
 
 - Never deploy by copying files manually into `/home/artdefinance/app`.
 - Never store `.env` or `local.db` inside a release permanently.
+- Never delete or overwrite `local.db` or `shared/backups/` directly.
 - `shared/.env` and `shared/local.db` are the source of truth for runtime secrets and persisted demo data.
 - If the server is memory-constrained, the Linux `libsql` native binding is already bundled in the artifact and does not need a remote `npm install`.
 
