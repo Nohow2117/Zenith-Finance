@@ -52,10 +52,28 @@ CREATE TABLE atm_withdrawals (
     status TEXT DEFAULT 'Pending Approval',
     FOREIGN KEY (account_id) REFERENCES accounts(id)
 );
-3. Variabili d'Ambiente (.env)
+
+-- Tabella Login Attempts (lockout applicativo)
+CREATE TABLE login_attempts (
+    id TEXT PRIMARY KEY,
+    actor_type TEXT NOT NULL,              -- 'user' | 'admin'
+    username TEXT NOT NULL,
+    ip_address TEXT NOT NULL,
+    attempt_count INTEGER DEFAULT 0,
+    window_started_at DATETIME NOT NULL,
+    last_attempt_at DATETIME NOT NULL,
+    locked_until DATETIME,
+    lock_level INTEGER DEFAULT 0,
+    last_locked_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## 3. Variabili d'Ambiente (.env)
 Il file .env è il cuore della configurazione. Il developer deve impostare queste chiavi su Vercel:
 
-Bash
+```bash
 # Database (Turso)
 TURSO_DATABASE_URL="libsql://your-db-name.turso.io"
 TURSO_AUTH_TOKEN="your-auth-token"
@@ -64,11 +82,15 @@ TURSO_AUTH_TOKEN="your-auth-token"
 OPENROUTER_API_KEY="your-openrouter-key"
 
 # Auth (Hardcoded)
+USER_USERNAME="fede171092"
 USER_PIN="1234"         # PIN per sbloccare i dati carta
+ADMIN_USERNAME="admin@2026"
 ADMIN_PASSWORD="admin_artdefi_2024"
 SESSION_SECRET="replace-with-a-long-random-secret"
 COOKIE_SECURE="false"   # true in produzione quando il dominio serve HTTPS
-4. Logica di Integrazione AI (OpenRouter)
+```
+
+## 4. Logica di Integrazione AI (OpenRouter)
 Il Pannello Admin include un endpoint /api/ai/parse-statement che opera come segue:
 
 Riceve il testo grezzo dell'estratto conto.
@@ -79,8 +101,8 @@ Prompt di Sistema: "Sei un parser finanziario. Estrai transazioni (data, descriz
 
 L'output viene validato dal frontend e salvato nella tabella transactions.
 
-5. Struttura delle Cartelle (Folder Structure)
-Plaintext
+## 5. Struttura delle Cartelle (Folder Structure)
+```text
 /artdefinance
 ├── /app
 │   ├── /api              # API Routes (AI, DB)
@@ -97,13 +119,26 @@ Plaintext
 ├── /prisma
 │   └── schema.prisma     # Definizione modelli DB
 └── tailwind.config.js    # Configurazione colori Neon e Dark Mode
-6. Sicurezza Demo
-Auth: Middleware di Next.js che controlla un cookie di sessione. Se il cookie non è presente, reindirizza a /login.
+```
 
-Dati Sensibili: I dati della carta (PAN completo e CVV) non devono esistere nel database. Solo le ultime 4 cifre e la scadenza sono memorizzate per scopi estetici.
+## 6. Sicurezza Demo
+Auth:
+- `src/proxy.ts` controlla le sessioni firmate prima di consentire accesso a `/dashboard` e `/admin`
+- `dashboard/layout.tsx` e `admin/layout.tsx` applicano guard server-side aggiuntive
+- Login admin con `ADMIN_USERNAME` + `ADMIN_PASSWORD`
+- Login user a due step: username -> challenge firmata a breve scadenza -> PIN
+- Lockout persistente su tabella `login_attempts`: 5 errori in 15 minuti bloccano temporaneamente l'accesso, con escalation a 60 minuti in caso di ricaduta immediata
 
-7. Layout Deploy VPS
-Plaintext
+Dati Sensibili:
+- PAN completo e CVV non devono esistere nel database né nei payload client
+- Solo ultime 4 cifre, scadenza e circuito possono essere memorizzati/renderizzati
+
+Headers e API:
+- L'app imposta security headers base (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, HSTS)
+- Le route API verificano l'origine attesa in modo esatto, non tramite matching parziale
+
+## 7. Layout Deploy VPS
+```text
 /home/artdefinance/deployments/artdefinance
 ├── bin/
 │   ├── backup-db.sh
@@ -116,15 +151,17 @@ Plaintext
 │   ├── local.db
 │   └── backups/       ← backup automatici ogni 3h, retention 48h
 └── incoming/
+```
 
 Il path `/home/artdefinance/app` punta via symlink a `current` per mantenere stabile il `cwd` di PM2 e del reverse proxy.
 
 ### Backup Database
 Un cron job esegue `bin/backup-db.sh` ogni 3 ore. I backup risiedono in `shared/backups/` con naming `local_YYYY-MM-DD_HH-MM.db`. I file più vecchi di 48 ore vengono eliminati automaticamente. Il deploy crea un backup aggiuntivo `local_pre-deploy_<release-id>.db` prima di ogni release. Per ripristinare: `bin/restore-db.sh [timestamp-parziale]`.
 
-8. HTTPS Produzione
-Plaintext
+## 8. HTTPS Produzione
+```text
 Cloudflare (proxied DNS) -> Nginx su VPS (443 con Origin CA) -> Next.js standalone su 127.0.0.1:3000
+```
 
 Il reverse proxy deve:
 - reindirizzare tutte le richieste `http` a `https`;

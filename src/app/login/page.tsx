@@ -1,8 +1,21 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { LOGIN_CHALLENGE_COOKIE_NAME, SESSION_COOKIE_NAME } from "@/lib/constants";
+import { verifySessionToken, verifyUserLoginChallengeToken } from "@/lib/auth/session";
 import { LoginForm } from "./login-form";
 
 export const metadata = { title: "Login" };
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const cookieStore = await cookies();
+  const session = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  if (await verifySessionToken(session, "user")) {
+    redirect("/dashboard");
+  }
+
+  const challengeToken = cookieStore.get(LOGIN_CHALLENGE_COOKIE_NAME)?.value;
+  const challenge = await verifyUserLoginChallengeToken(challengeToken);
+
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-20">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -14,9 +27,9 @@ export default function LoginPage() {
             <span className="text-bg-primary font-bold text-lg">A</span>
           </div>
           <h1 className="text-2xl font-bold">Welcome Back</h1>
-          <p className="text-sm text-text-secondary">Enter your PIN to access the dashboard</p>
+          <p className="text-sm text-text-secondary">Verify your username, then enter your PIN to access the dashboard</p>
         </div>
-        <LoginForm />
+        <LoginForm initialHasChallenge={!!challenge} />
       </div>
     </div>
   );

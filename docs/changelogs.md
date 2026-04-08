@@ -53,6 +53,62 @@ Spiegazione concisa del PERCHÉ questa modifica è stata fatta, non solo del COS
 
 ---
 
+## 2026-04-08 — Hardening Auth Multi-Step, Lockout Persistente e Sanitizzazione Carte
+
+**Agente:** Codex (GPT-5)
+**Scope:** Full-Stack
+**Tipo:** feat
+
+### Modifiche
+- `[MODIFIED] .env.example` — aggiunte le variabili `USER_USERNAME` e `ADMIN_USERNAME` per i nuovi flussi di login
+- `[MODIFIED] .env` — aggiunte le variabili `USER_USERNAME` e `ADMIN_USERNAME` e rimossa una riga corrotta duplicata di `SESSION_SECRET`
+- `[CREATED] drizzle/0002_sharp_security_hardening.sql` — migrazione che converte `accounts` a `card_last_four`, rimuove CVV/PAN completo e crea la tabella `login_attempts`
+- `[MODIFIED] drizzle/meta/_journal.json` — registrata la nuova migrazione di hardening
+- `[MODIFIED] next.config.ts` — aggiunti security headers globali e disabilitato `X-Powered-By`
+- `[MODIFIED] src/app/_actions/auth.ts` — introdotti login admin con username, flow utente a due step con challenge firmata, lockout persistente e reset esplicito del flow
+- `[MODIFIED] src/app/_actions/data.ts` — aggiornato il dominio account a `cardLastFour` e rimosso CVV dai percorsi dati/admin
+- `[MODIFIED] src/app/admin/layout.tsx` — aggiunta guard server-side per il pannello admin
+- `[MODIFIED] src/app/admin/admin-accounts-client.tsx` — sostituita la gestione PAN/CVV con ultime 4 cifre, scadenza e network
+- `[MODIFIED] src/app/admin-login/page.tsx` — aggiunto redirect per sessioni admin già valide e copy aggiornato
+- `[MODIFIED] src/app/admin-login/admin-login-form.tsx` — login admin convertito a username + password con messaggi generici e stato lockout
+- `[MODIFIED] src/app/api/ai/parse-statement/route.ts` — origin validation resa esatta e riusabile
+- `[MODIFIED] src/app/dashboard/layout.tsx` — aggiunta guard server-side per la dashboard utente
+- `[MODIFIED] src/app/dashboard/cards/page.tsx` — filtraggio carte basato su `cardLastFour`
+- `[MODIFIED] src/app/dashboard/withdraw/page.tsx` — filtro account prelievo basato su `cardLastFour`
+- `[MODIFIED] src/app/login/page.tsx` — aggiunto redirect per sessioni user già valide e supporto al resume del challenge cookie
+- `[MODIFIED] src/app/login/login-form.tsx` — implementato il flow username -> searching account -> PIN con reset sicuro e messaggi anti-enumeration
+- `[MODIFIED] src/app/page.tsx` — redirect home basato su sessioni validate, sia user che admin
+- `[DELETED] src/middleware.ts` — rimosso il vecchio entrypoint deprecato di Next.js
+- `[CREATED] src/proxy.ts` — nuovo gate runtime per proteggere `/dashboard/*` e `/admin/*`
+- `[MODIFIED] src/components/cards/debit-card.tsx` — rimossa la visualizzazione di CVV/PAN completo e allineato il reveal ai soli dati consentiti
+- `[CREATED] src/lib/auth/config.ts` — utility centralizzate per leggere e validare le credenziali da environment
+- `[CREATED] src/lib/auth/login-attempts.ts` — gestione persistente dei tentativi login e dei lockout applicativi
+- `[CREATED] src/lib/auth/request.ts` — helper per IP client e validazione exact-origin
+- `[MODIFIED] src/lib/auth/session.ts` — sessioni/challenge firmate con expiry enforced
+- `[MODIFIED] src/lib/constants.ts` — aggiunte costanti per cookie challenge, TTL auth e policy di lockout
+- `[MODIFIED] src/lib/db/schema.ts` — aggiornato lo schema Drizzle con `card_last_four` e `login_attempts`
+- `[MODIFIED] src/lib/db/seed.ts` — seed riallineato alle sole ultime 4 cifre
+- `[MODIFIED] src/types/index.ts` — rimosso `cardCvv` e sostituito `cardNumber` con `cardLastFour`
+- `[MODIFIED] docs/architecture.md` — documentati nuovo schema, env vars e strategia auth/lockout
+- `[MODIFIED] docs/changelogs.md` — aggiunta questa entry
+
+### Motivazione
+La codebase proteggeva già le route con sessioni firmate, ma l’accesso restava troppo debole: login user basato solo su PIN, login admin basato solo su password, nessun lockout persistente e presenza ancora di dati carta non ammessi nel dominio applicativo. Le modifiche alzano il livello di sicurezza reale senza rompere l’esperienza demo, introducendo un secondo identificatore, anti-enumeration, lockout persistente, expiry token enforceato e rimozione effettiva di CVV/PAN completo.
+
+### Dipendenze
+Nessuna modifica alle dipendenze.
+
+### Breaking Changes
+- Il contratto delle Server Actions di autenticazione cambia: il login admin richiede ora `username + password`, mentre il login utente è diviso in due azioni (`beginUserLogin`, `completeUserLogin`).
+- Il dominio account lato TypeScript/Drizzle non espone più `cardNumber` e `cardCvv`, ma `cardLastFour`.
+
+### Verifiche Effettuate
+- [x] `npm run build` passato con successo
+- [x] Documentazione aggiornata (se applicabile)
+- [x] Schema DB invariato / aggiornato in `architecture.md`
+
+---
+
 ## 2026-04-08 — Riallineamento Account Legacy e Limite History a 30 Movimenti
 
 **Agente:** Codex (GPT-5)

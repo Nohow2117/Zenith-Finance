@@ -6,7 +6,7 @@ import { accounts, transactions, atmWithdrawals } from "@/lib/db/schema";
 import { eq, desc, inArray } from "drizzle-orm";
 import { v4 as uuid } from "uuid";
 import { z } from "zod";
-import { EUR_USDT_RATE, MAX_VISIBLE_TRANSACTIONS } from "@/lib/constants";
+import { ATM_AMOUNTS, EUR_USDT_RATE, MAX_VISIBLE_TRANSACTIONS } from "@/lib/constants";
 import type { ActionResult, Account, Transaction, AtmWithdrawal } from "@/types";
 import { revalidatePath } from "next/cache";
 import { requireAdminSession, requireAppSession, requireUserSession } from "@/lib/auth/guards";
@@ -19,9 +19,8 @@ export async function getAccounts(): Promise<Account[]> {
     id: r.id,
     name: r.name,
     balanceEur: r.balanceEur,
-    cardNumber: r.cardNumber,
+    cardLastFour: r.cardLastFour,
     cardExpiry: r.cardExpiry,
-    cardCvv: r.cardCvv,
     cardNetwork: r.cardNetwork,
     isActive: r.isActive,
     createdAt: r.createdAt,
@@ -93,7 +92,7 @@ export async function getWithdrawals(): Promise<(AtmWithdrawal & { accountName: 
 
 const withdrawalSchema = z.object({
   accountId: z.string().uuid(),
-  amount: z.number().refine((v) => [2000, 2500, 3000].includes(v)),
+  amount: z.number().refine((v) => ATM_AMOUNTS.includes(v as (typeof ATM_AMOUNTS)[number])),
   pickupDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
 });
 
@@ -181,20 +180,18 @@ export async function updateAccountStatus(
 
 const updateCardSchema = z.object({
   accountId: z.string().uuid(),
-  cardNumber: z.string().min(13).max(19),
+  cardLastFour: z.string().regex(/^\d{4}$/),
   cardExpiry: z.string().regex(/^\d{2}\/\d{2}$/),
-  cardCvv: z.string().min(3).max(4),
   cardNetwork: z.enum(["Visa", "Mastercard"]),
 });
 
 export async function updateAccountCard(
   accountId: string,
-  cardNumber: string,
+  cardLastFour: string,
   cardExpiry: string,
-  cardCvv: string,
   cardNetwork: string
 ): Promise<ActionResult> {
-  const parsed = updateCardSchema.safeParse({ accountId, cardNumber, cardExpiry, cardCvv, cardNetwork });
+  const parsed = updateCardSchema.safeParse({ accountId, cardLastFour, cardExpiry, cardNetwork });
   if (!parsed.success) {
     return { success: false, error: "Invalid card data" };
   }
@@ -204,9 +201,8 @@ export async function updateAccountCard(
     await db
       .update(accounts)
       .set({
-        cardNumber: parsed.data.cardNumber,
+        cardLastFour: parsed.data.cardLastFour,
         cardExpiry: parsed.data.cardExpiry,
-        cardCvv: parsed.data.cardCvv,
         cardNetwork: parsed.data.cardNetwork,
       })
       .where(eq(accounts.id, parsed.data.accountId));

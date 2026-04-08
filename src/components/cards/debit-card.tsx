@@ -18,7 +18,7 @@ export function DebitCard({ account }: DebitCardProps) {
   const [isVerifying, setIsVerifying] = useState(false);
 
   const handleShowData = () => {
-    if (!account.cardNumber) return;
+    if (!account.cardLastFour) return;
     setShowPinModal(true);
     setPin("");
     setError("");
@@ -43,8 +43,12 @@ export function DebitCard({ account }: DebitCardProps) {
 
   const gradient = account.cardNetwork ? gradients[account.cardNetwork] ?? "from-bg-card to-bg-secondary" : "from-accent/20 via-bg-card to-accent/10";
 
-  const maskedNumber = account.cardNumber
-    ? `•••• •••• •••• ${account.cardNumber.slice(-4)}`
+  const revealedNumber = account.cardLastFour
+    ? `•••• •••• •••• ${account.cardLastFour}`
+    : "•••• •••• •••• ••••";
+
+  const maskedNumber = account.cardLastFour
+    ? `•••• •••• •••• ${account.cardLastFour}`
     : "•••• •••• •••• ••••";
 
   return (
@@ -73,7 +77,7 @@ export function DebitCard({ account }: DebitCardProps) {
 
           <div className="space-y-1">
             <p className="text-lg font-mono tracking-[0.2em] text-white/90">
-              {isRevealed ? account.cardNumber : maskedNumber}
+              {isRevealed ? revealedNumber : maskedNumber}
             </p>
           </div>
 
@@ -85,14 +89,8 @@ export function DebitCard({ account }: DebitCardProps) {
                   {isRevealed ? account.cardExpiry : "••/••"}
                 </p>
               </div>
-              {isRevealed && account.cardCvv && (
-                <div>
-                  <p className="text-[10px] text-white/40 uppercase tracking-wider">CVV</p>
-                  <p className="text-sm font-mono text-white/80">{account.cardCvv}</p>
-                </div>
-              )}
             </div>
-            {account.cardNumber && !isRevealed && (
+            {account.cardLastFour && !isRevealed && (
               <Button
                 size="sm"
                 variant="ghost"
@@ -139,7 +137,7 @@ export function DebitCard({ account }: DebitCardProps) {
               <div className="bg-bg-card border border-border rounded-2xl p-8 w-full max-w-sm space-y-6">
                 <div className="text-center">
                   <h3 className="text-lg font-semibold">Enter PIN</h3>
-                  <p className="text-sm text-text-secondary mt-1">Enter your 4-digit PIN to reveal card data</p>
+                  <p className="text-sm text-text-secondary mt-1">Enter your 4-digit PIN to reveal protected card details</p>
                 </div>
                 <div className="flex justify-center gap-3">
                   {Array.from({ length: PIN_LENGTH }).map((_, i) => (
@@ -194,7 +192,7 @@ export function DebitCard({ account }: DebitCardProps) {
                   loading={isVerifying}
                   disabled={pin.length !== PIN_LENGTH}
                 >
-                  Verify PIN
+                  Reveal Details
                 </Button>
               </div>
             </motion.div>

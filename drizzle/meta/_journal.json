@@ -15,6 +15,13 @@
       "when": 1775636473399,
       "tag": "0001_adorable_absorbing_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1775637600000,
+      "tag": "0002_sharp_security_hardening",
+      "breakpoints": true
     }
   ]
 }

@@ -5,6 +5,6 @@ export const metadata = { title: "ATM Withdrawal" };
 
 export default async function WithdrawPage() {
   const [accounts, withdrawals] = await Promise.all([getAccounts(), getWithdrawals()]);
-  const bankAccounts = accounts.filter((a) => a.cardNumber);
+  const bankAccounts = accounts.filter((a) => a.cardLastFour);
   return <WithdrawClient accounts={bankAccounts} withdrawals={withdrawals} />;
 }

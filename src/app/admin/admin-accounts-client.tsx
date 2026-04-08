@@ -44,9 +44,8 @@ function AccountEditor({
   onSuccess: (msg: string, type: "success" | "error" | "info") => void;
 }) {
   const [balance, setBalance] = useState(account.balanceEur.toString());
-  const [cardNumber, setCardNumber] = useState(account.cardNumber || "");
+  const [cardLastFour, setCardLastFour] = useState(account.cardLastFour || "");
   const [expiry, setExpiry] = useState(account.cardExpiry || "");
-  const [cvv, setCvv] = useState(account.cardCvv || "");
   const [network, setNetwork] = useState(account.cardNetwork || "Visa");
   const [isActive, setIsActive] = useState(account.isActive);
   const [balanceLoading, setBalanceLoading] = useState(false);
@@ -62,7 +61,7 @@ function AccountEditor({
 
   const handleCardUpdate = async () => {
     setCardLoading(true);
-    const result = await updateAccountCard(account.id, cardNumber, expiry, cvv, network);
+    const result = await updateAccountCard(account.id, cardLastFour, expiry, network);
     setCardLoading(false);
     if (result.success) onSuccess("Card updated", "success");
     else onSuccess(result.error || "Error", "error");
@@ -117,11 +116,11 @@ function AccountEditor({
         <p className="text-sm font-medium text-text-secondary">Card Details</p>
         <div className="grid grid-cols-2 gap-3">
           <Input
-            label="Card Number"
-            maxLength={19}
-            value={cardNumber}
-            onChange={(e) => setCardNumber(e.target.value.replace(/[^\d ]/g, "").slice(0, 19))}
-            placeholder="0000 0000 0000 0000"
+            label="Card Last Four"
+            maxLength={4}
+            value={cardLastFour}
+            onChange={(e) => setCardLastFour(e.target.value.replace(/\D/g, "").slice(0, 4))}
+            placeholder="1234"
           />
           <Input
             label="Expiry"
@@ -131,27 +130,19 @@ function AccountEditor({
             onChange={(e) => setExpiry(e.target.value)}
           />
         </div>
-        <div className="grid grid-cols-3 gap-3">
-          <Input
-            label="CVV"
-            maxLength={4}
-            value={cvv}
-            onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-          />
-          <div className="space-y-1.5">
-            <label className="block text-sm font-medium text-text-secondary" htmlFor={`network-${account.id}`}>
-              Network
-            </label>
-            <select
-              id={`network-${account.id}`}
-              value={network}
-              onChange={(e) => setNetwork(e.target.value)}
-              className="w-full rounded-xl bg-bg-secondary border border-border px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent/50"
-            >
-              <option value="Visa">Visa</option>
-              <option value="Mastercard">Mastercard</option>
-            </select>
-          </div>
+        <div className="space-y-1.5">
+          <label className="block text-sm font-medium text-text-secondary" htmlFor={`network-${account.id}`}>
+            Network
+          </label>
+          <select
+            id={`network-${account.id}`}
+            value={network}
+            onChange={(e) => setNetwork(e.target.value)}
+            className="w-full rounded-xl bg-bg-secondary border border-border px-3 py-2.5 text-sm text-text-primary focus:outline-none focus:border-accent/50"
+          >
+            <option value="Visa">Visa</option>
+            <option value="Mastercard">Mastercard</option>
+          </select>
         </div>
         <Button size="sm" variant="secondary" onClick={handleCardUpdate} loading={cardLoading}>
           Update Card

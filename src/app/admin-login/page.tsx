@@ -1,8 +1,18 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { ADMIN_SESSION_COOKIE_NAME } from "@/lib/constants";
+import { verifySessionToken } from "@/lib/auth/session";
 import { AdminLoginForm } from "./admin-login-form";
 
 export const metadata = { title: "Admin Login" };
 
-export default function AdminLoginPage() {
+export default async function AdminLoginPage() {
+  const cookieStore = await cookies();
+  const session = cookieStore.get(ADMIN_SESSION_COOKIE_NAME)?.value;
+  if (await verifySessionToken(session, "admin")) {
+    redirect("/admin");
+  }
+
   return (
     <div className="flex flex-1 items-center justify-center px-4 py-20">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -14,7 +24,7 @@ export default function AdminLoginPage() {
             <span className="text-white font-bold text-lg">⚙</span>
           </div>
           <h1 className="text-2xl font-bold">Admin Access</h1>
-          <p className="text-sm text-text-secondary">Enter admin password to continue</p>
+          <p className="text-sm text-text-secondary">Enter your admin username and password to continue</p>
         </div>
         <AdminLoginForm />
       </div>

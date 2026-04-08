@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_SESSION_COOKIE_NAME, OPENROUTER_TIMEOUT_MS } from "@/lib/constants";
 import { verifySessionToken } from "@/lib/auth/session";
+import { hasAllowedOrigin } from "@/lib/auth/request";
 
 const SYSTEM_PROMPT = `Sei un parser finanziario. Estrai SOLAMENTE prelievi ATM (cash withdrawals) e pagamenti con carta (card payments/POS) da questo testo. Ignora bonifici in ingresso, stipendi o altre entrate. Restituisci solo un array JSON con oggetti nel formato: [{"date":"YYYY-MM-DD","description":"...","amountEur":0.00,"type":"expense"}]. L'importo (amountEur) deve essere sempre un numero positivo. Non aggiungere commenti.`;
 
@@ -10,9 +11,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const origin = request.headers.get("origin");
-  const host = request.headers.get("host");
-  if (origin && host && !origin.includes(host)) {
+  if (!hasAllowedOrigin(request)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 

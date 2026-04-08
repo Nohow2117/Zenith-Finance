@@ -5,6 +5,6 @@ export const metadata = { title: "Cards" };
 
 export default async function CardsPage() {
   const accounts = await getAccounts();
-  const cardAccounts = accounts.filter((a) => a.cardNumber);
+  const cardAccounts = accounts.filter((a) => a.cardLastFour);
   return <CardsClient accounts={cardAccounts} />;
 }

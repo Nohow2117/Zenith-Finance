@@ -2,9 +2,8 @@ export interface Account {
   id: string;
   name: string;
   balanceEur: number;
-  cardNumber: string | null;
+  cardLastFour: string | null;
   cardExpiry: string | null;
-  cardCvv: string | null;
   cardNetwork: string | null;
   isActive: boolean;
   createdAt: string;

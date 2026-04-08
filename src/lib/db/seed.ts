@@ -5,16 +5,16 @@ import { EUR_USDT_RATE } from "../constants";
 import { eq, inArray } from "drizzle-orm";
 
 const SEED_ACCOUNTS = [
-  { name: "BTC Fineco", balanceEur: 42350.0, cardNumber: "4539 1234 5678 4821", cardExpiry: "09/27", cardCvv: "847", cardNetwork: "Visa" },
-  { name: "XRP Isybank", balanceEur: 0, cardNumber: null, cardExpiry: null, cardCvv: null, cardNetwork: null },
-  { name: "USDC WeBank", balanceEur: 18720.5, cardNumber: "5412 7534 9012 7392", cardExpiry: "03/28", cardCvv: "312", cardNetwork: "Mastercard" },
-  { name: "Solana Findomestic", balanceEur: 8450.0, cardNumber: "4716 8290 3456 1156", cardExpiry: "11/26", cardCvv: "605", cardNetwork: "Visa" },
-  { name: "Ethereum Mediolanum", balanceEur: 14200.0, cardNumber: "4214 7483 9123 4812", cardExpiry: "12/26", cardCvv: "142", cardNetwork: "Visa" },
-  { name: "AVAX Wise", balanceEur: 3100.5, cardNumber: "5312 8593 1032 5921", cardExpiry: "06/27", cardCvv: "941", cardNetwork: "Mastercard" },
-  { name: "DOT N26", balanceEur: 1250.0, cardNumber: "5123 9482 1234 9482", cardExpiry: "01/29", cardCvv: "253", cardNetwork: "Mastercard" },
-  { name: "Crypto Staking", balanceEur: 125800.0, cardNumber: null, cardExpiry: null, cardCvv: null, cardNetwork: null },
-  { name: "Liquidity Pool", balanceEur: 67200.0, cardNumber: null, cardExpiry: null, cardCvv: null, cardNetwork: null },
-  { name: "DeFi Vault", balanceEur: 31500.0, cardNumber: null, cardExpiry: null, cardCvv: null, cardNetwork: null },
+  { name: "BTC Fineco", balanceEur: 42350.0, cardLastFour: "4821", cardExpiry: "09/27", cardNetwork: "Visa" },
+  { name: "XRP Isybank", balanceEur: 0, cardLastFour: null, cardExpiry: null, cardNetwork: null },
+  { name: "USDC WeBank", balanceEur: 18720.5, cardLastFour: "7392", cardExpiry: "03/28", cardNetwork: "Mastercard" },
+  { name: "Solana Findomestic", balanceEur: 8450.0, cardLastFour: "1156", cardExpiry: "11/26", cardNetwork: "Visa" },
+  { name: "Ethereum Mediolanum", balanceEur: 14200.0, cardLastFour: "4812", cardExpiry: "12/26", cardNetwork: "Visa" },
+  { name: "AVAX Wise", balanceEur: 3100.5, cardLastFour: "5921", cardExpiry: "06/27", cardNetwork: "Mastercard" },
+  { name: "DOT N26", balanceEur: 1250.0, cardLastFour: "9482", cardExpiry: "01/29", cardNetwork: "Mastercard" },
+  { name: "Crypto Staking", balanceEur: 125800.0, cardLastFour: null, cardExpiry: null, cardNetwork: null },
+  { name: "Liquidity Pool", balanceEur: 67200.0, cardLastFour: null, cardExpiry: null, cardNetwork: null },
+  { name: "DeFi Vault", balanceEur: 31500.0, cardLastFour: null, cardExpiry: null, cardNetwork: null },
 ];
 
 const SEED_TRANSACTIONS = [
