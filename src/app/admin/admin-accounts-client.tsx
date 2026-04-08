@@ -6,7 +6,7 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
-import { updateAccountBalance, updateAccountCard } from "@/app/_actions/data";
+import { updateAccountBalance, updateAccountCard, updateAccountStatus } from "@/app/_actions/data";
 import type { Account } from "@/types";
 
 export function AdminAccountsClient({ accounts }: { accounts: Account[] }) {
@@ -48,6 +48,7 @@ function AccountEditor({
   const [expiry, setExpiry] = useState(account.cardExpiry || "");
   const [cvv, setCvv] = useState(account.cardCvv || "");
   const [network, setNetwork] = useState(account.cardNetwork || "Visa");
+  const [isActive, setIsActive] = useState(account.isActive);
   const [balanceLoading, setBalanceLoading] = useState(false);
   const [cardLoading, setCardLoading] = useState(false);
 
@@ -67,10 +68,31 @@ function AccountEditor({
     else onSuccess(result.error || "Error", "error");
   };
 
+  const handleToggleStatus = async () => {
+    const newStatus = !isActive;
+    setIsActive(newStatus);
+    const result = await updateAccountStatus(account.id, newStatus);
+    if (!result.success) {
+      setIsActive(!newStatus); // revert on failure
+      onSuccess(result.error || "Failed to update status", "error");
+    } else {
+      onSuccess(`Account ${newStatus ? 'activated' : 'deactivated'}`, "success");
+    }
+  };
+
   return (
-    <GlassCard className="p-6 space-y-5">
+    <GlassCard className={`p-6 space-y-5 transition-opacity duration-300 ${!isActive ? 'opacity-50 grayscale-[0.5]' : ''}`}>
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-lg">{account.name}</h3>
+        <div className="flex items-center gap-3">
+          <h3 className="font-semibold text-lg">{account.name}</h3>
+          <button 
+            type="button" 
+            onClick={handleToggleStatus}
+            className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-bg-card transition-colors duration-200 ease-in-out ${isActive ? 'bg-accent' : 'bg-border'}`}
+          >
+            <span aria-hidden="true" className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${isActive ? 'translate-x-2' : '-translate-x-2'}`} />
+          </button>
+        </div>
         <span className="text-xs px-2 py-1 rounded-full bg-accent/10 text-accent">
           &euro;{account.balanceEur.toLocaleString()}
         </span>

@@ -6,6 +6,7 @@ export interface Account {
   cardExpiry: string | null;
   cardCvv: string | null;
   cardNetwork: string | null;
+  isActive: boolean;
   createdAt: string;
 }
 

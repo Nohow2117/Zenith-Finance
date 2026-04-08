@@ -23,6 +23,7 @@ export async function getAccounts(): Promise<Account[]> {
     cardExpiry: r.cardExpiry,
     cardCvv: r.cardCvv,
     cardNetwork: r.cardNetwork,
+    isActive: r.isActive,
     createdAt: r.createdAt,
   }));
 }
@@ -117,6 +118,34 @@ export async function updateAccountBalance(
     return { success: true };
   } catch (e) {
     return { success: false, error: "Failed to update balance" };
+  }
+}
+
+const updateStatusSchema = z.object({
+  accountId: z.string().uuid(),
+  isActive: z.boolean(),
+});
+
+export async function updateAccountStatus(
+  accountId: string,
+  isActive: boolean
+): Promise<ActionResult> {
+  const parsed = updateStatusSchema.safeParse({ accountId, isActive });
+  if (!parsed.success) {
+    return { success: false, error: "Invalid input" };
+  }
+  try {
+    await initializeDatabase();
+    await requireAdminSession();
+    await db
+      .update(accounts)
+      .set({ isActive: parsed.data.isActive })
+      .where(eq(accounts.id, parsed.data.accountId));
+    revalidatePath("/dashboard");
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (e) {
+    return { success: false, error: "Failed to update status" };
   }
 }
 

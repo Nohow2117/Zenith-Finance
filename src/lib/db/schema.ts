@@ -1,4 +1,4 @@
-import { sqliteTable, text, real } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, real, integer } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 export const accounts = sqliteTable("accounts", {
@@ -9,6 +9,7 @@ export const accounts = sqliteTable("accounts", {
   cardExpiry: text("card_expiry"),
   cardCvv: text("card_cvv"),
   cardNetwork: text("card_network"),
+  isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
 });
 
